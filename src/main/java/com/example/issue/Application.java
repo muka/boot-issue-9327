@@ -39,7 +39,7 @@ import org.springframework.core.io.Resource;
 public class Application  {
     
     static final String basepath = "/tmp/";
-    static final String appName = "issue";
+    static String appName = "issue";
     
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = new SpringApplicationBuilder()
@@ -55,28 +55,17 @@ public class Application  {
         
     }
 
+    static public String[] buildArgs(Class clazz, String[] args) {
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer properties() {
-        PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
+        String[] parts = clazz.getCanonicalName().split("\\.");
+        appName = parts[parts.length - 2];
+        String name = "--spring.config.name=" + appName;
 
-        propertySourcesPlaceholderConfigurer.setIgnoreResourceNotFound(false);
-        
-        List<Resource> resources = new ArrayList<String>(Arrays.asList("raptor.yml", appName + ".yml"))
-                .stream()
-                .filter(f -> new File(basepath + f).exists())
-                .map(f -> new FileSystemResource(basepath + f))
-                .collect(Collectors.toList());
+        String[] args2 = new String[args.length + 1];
+        System.arraycopy(args, 0, args2, 0, args.length);
+        args2[args2.length - 1] = name;
 
-        if (resources.isEmpty()) {
-            throw new RuntimeException("Cannot find a loadable property file in: " + basepath);
-        }
-
-        YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
-        yaml.setResources(resources.toArray(new Resource[]{}));
-
-        propertySourcesPlaceholderConfigurer.setProperties(yaml.getObject());
-        return propertySourcesPlaceholderConfigurer;
+        return args2;
     }
     
 }
