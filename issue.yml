@@ -1,0 +1,59 @@
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+      trigger-file: raptor-${spring.config.name}-1.0.jar
+      additional-paths: target
+
+  data:
+    mongodb:
+      host: mongo
+      port: 27017
+      database: raptor
+
+
+server:
+  port: 80
+  contextPath: /${spring.config.name}
+  address: 0.0.0.0
+  error:
+    whitelabel:
+      enabled: true
+
+logging:
+  level:
+    org.createnet.raptor: DEBUG
+
+
+raptor:
+  url: http://rproxy
+
+  dispatcher:
+    protocol: mqtt
+    username: system
+    password: system123
+    uri: tcp://broker:1883
+
+  auth:
+    # Default user to be created, disable setting enabled to false
+    admin:
+      enabled: true
+      username: admin
+      password: admin
+      email: admin@raptor.local
+
+    header: Authorization
+    headerPrefix: Bearer
+    # Used for login token generation
+    secret: ${random.value}
+    # TTL in seconds, 1800 = 30 minutes
+    expiration: 1800
+
+  broker:
+    artemis: file:///etc/raptor/broker.xml
+    users:
+      - name: system
+        password: secr3t
+        roles:
+          - admin
